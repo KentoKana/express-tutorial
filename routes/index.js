@@ -2,12 +2,6 @@
 const express = require('express');
 const router = express.Router();
 
-router.use('/logout', (req, res, next) => {
-  req.message = "You have logged out";
-  console.log(req.message);
-  next();
-});
-
 router.get('/', (req, res) => {
   if (req.cookies.username) {
     res.render('index', {
@@ -29,6 +23,12 @@ router.post('/', (req, res) => {
 router.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('login');
+});
+
+router.use('/logout', (req, res, next) => {
+  req.message = "You have logged out";
+  console.log(req.message);
+  next();
 });
 
 router.get('/login', (req, res) => {
