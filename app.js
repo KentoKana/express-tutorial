@@ -12,48 +12,31 @@ app.use(cookieParser());
 //By default, view engine will look for view file.
 app.set('view engine', 'pug');
 
-app.get('/', (req, res) => {
-  if (req.cookies.username) {
-    res.render('index', {
-      name: req.cookies.username
-    });
-  } else {
-    res.redirect('logout')
-  }
+//import routers from routes folder.
+const mainRoutes = require('./routes');
+app.use(mainRoutes);
+
+app.use((req, res, next) => {
+  const err = new Error('Something went wrong...');
+  err.status = 500;
+  next();
+
+})
+
+
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
-app.post('/', (req, res) => {
-  console.dir(req.body);
-  res.cookie('username', req.body.username);
-  res.render('index', {
-    name: req.body.username
-  });
+app.use((err, req, res, next) => {
+  res.locals.error = err;
+  res.status(err.status);
+  res.render('error', err);
 });
 
-app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('login');
+const port = 9001;
+app.listen(port, () => {
+  console.log('App listening on port 9001');
 });
-
-app.get('/login', (req, res) => {
-  if (req.cookies.username) {
-    res.redirect('/');
-  } else {
-    res.render('login');
-  }
-});
-
-app.get('/logout', (req, res) => {
-  if (!req.cookies.username) {
-    res.redirect('/login');
-  }
-});
-
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username)
-  res.redirect('/');
-});
-
-
-app.listen(9001);
-console.log('App listening on port 9001');
